@@ -1,0 +1,36 @@
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+
+steps:
+
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@1
+      displayName: 'Install Terraform latest'
+
+    - task: TerraformTaskV2@2
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/myfolder'
+        backendServiceArm: 'myserviceprincipal'
+        backendAzureRmResourceGroupName: 'AslamSRG'
+        backendAzureRmStorageAccountName: 'storageaccountcreations'
+        backendAzureRmContainerName: 'statefile'
+        backendAzureRmKey: 'terraform.tfstate'
+
+    - task: TerraformTaskV1@0
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/myfolder'
+        commandOptions: '-out=tfplan'
+        environmentServiceNameAzureRM: 'Aslam Azure Subcription (e1fc35d0-d87e-4af0-941f-4dfe6fc65bfe)'
+
+    - task: TerraformTaskV1@0
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/myfolder'
+        commandOptions: '--auto-approve'
+        environmentServiceNameAzureRM: 'Aslam Azure Subcription (e1fc35d0-d87e-4af0-941f-4dfe6fc65bfe)'
